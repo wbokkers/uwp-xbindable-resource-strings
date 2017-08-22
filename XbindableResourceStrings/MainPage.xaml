@@ -5,9 +5,12 @@
     xmlns:local="using:XbindableResourceStrings"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:str="using:ResourceStrings"
+    
     mc:Ignorable="d">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
-    </Grid>
+    <StackPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="20">
+        <TextBlock Text="{x:Bind str:R.HelloWorld}" FontSize="20" Margin="10" />
+        <Button Content="{x:Bind str:R.ShowMessage}" Click="ShowMessageClick"/>
+    </StackPanel>
 </Page>

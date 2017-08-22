@@ -1,0 +1,67 @@
+﻿<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Xml" #>
+<#@ assembly name="System.Xml.Linq" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Xml.Linq" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="Microsoft.CSharp" #>
+<#@ output extension=".cs" #>
+<#
+    var reswPath = @"./en-US/Strings.resw"; 
+     
+    var provider = new CSharpCodeProvider();
+	var fileNameBase = Path.GetFileNameWithoutExtension(Host.TemplateFile);
+    var className = provider.CreateEscapedIdentifier(fileNameBase);
+   
+    Directory.SetCurrentDirectory(Host.ResolvePath(""));
+    if (File.Exists(reswPath)) 
+    { 
+#>
+using Windows.ApplicationModel.Resources;
+using System;
+ 
+namespace ResourceStrings
+{
+    public static class <#= className #> 
+    {
+        private static readonly ResourceLoader s_res; 
+
+        static <#= className #>() 
+        {
+            try
+            {
+                s_res = ResourceLoader.GetForViewIndependentUse("Strings");
+            }
+            catch (TypeInitializationException)
+            {
+                throw new Exception("Unable to locate the .resw file(s) Strings.resw");
+            }
+        }
+
+		// String accesors:
+		//----
+<#      foreach (string name in GetResourceKeys(reswPath).Where(n => !n.Contains(".")))
+        { #>
+		public static string <#= provider.CreateEscapedIdentifier(name) #> => RetrieveString("<#= name #>");
+<#      } #>
+
+        static string RetrieveString(string resourceKey) => s_res.GetString(resourceKey);
+    }
+}
+<#
+    }
+    else
+    {
+        throw new FileNotFoundException(); 
+    }
+#>
+<#+
+ 
+    static IEnumerable<string> GetResourceKeys(string filePath)
+    {
+        var doc = XDocument.Load(filePath);
+        return doc.Root.Elements("data").Select(e => e.Attribute("name").Value);
+    }
+#>
